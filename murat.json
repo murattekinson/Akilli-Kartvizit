@@ -1,19 +1,11 @@
 {
-    "identity": {
-        "name": "Murat Tekin",
-        "title": "Bilgisayar Mühendisi",
-        "location": "Isparta",
-        "bio": "Merhaba ben Murat."
-    },
-    "skills": {
-        "tech": ["Unity", "C#"],
-        "creative": ["Video", "Tasarım"],
-        "soft": ["Girişimcilik"]
-    },
-    "projects": [],
-    "contact": {
-        "email": "m@test.com",
-        "linkedin": "",
-        "github": ""
-    }
+  "ad": "Murat Tekin",
+  "unvan": "Bilgisayar Mühendisi",
+  "fotograf": "murat.jpg",
+  "hazir_mesajlar": [
+    "Projelerin neler?",
+    "Hangi dilleri biliyorsun?",
+    "İletişim bilgilerin nedir?",
+    "CV'ni görebilir miyim?"
+  ]
 }
