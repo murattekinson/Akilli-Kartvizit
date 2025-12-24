@@ -6,157 +6,26 @@
     <title>Asistan</title>
     
     <style>
-        /* --- STABİL VE YUMUŞAK TASARIM (Mobile First) --- */
+        /* --- STABİL VE YUMUŞAK TASARIM --- */
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f2f4f8; /* Yumuşak gri arka plan */
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            height: 100vh; 
-            overflow: hidden; /* Sayfa kaymasını engelle */
-        }
-
-        .chat-container { 
-            width: 100%; 
-            max-width: 480px; /* Mobilde tam, pc'de dar */
-            background: white; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; 
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-        }
-        
-        /* Üst Başlık - Modern ve Oval */
-        .chat-header { 
-            background: #ffffff;
-            color: #333; 
-            padding: 15px 20px; 
-            display: flex; 
-            align-items: center; 
-            border-bottom: 1px solid #f0f0f0;
-            z-index: 10;
-        }
-        .chat-header img { 
-            width: 50px; 
-            height: 50px; 
-            border-radius: 50%; /* Tam yuvarlak */
-            margin-right: 15px; 
-            object-fit: cover;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f2f4f8; margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .chat-container { width: 100%; max-width: 480px; background: white; display: flex; flex-direction: column; height: 100%; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .chat-header { background: #ffffff; color: #333; padding: 15px 20px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; z-index: 10; }
+        .chat-header img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .chat-header h1 { font-size: 18px; margin: 0; font-weight: 700; color: #222; }
         .chat-header p { font-size: 13px; margin: 0; color: #888; margin-top: 2px; }
-
-        /* Mesaj Alanı */
-        .chat-messages { 
-            flex: 1; 
-            padding: 20px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            padding-bottom: 100px; /* Input için boşluk */
-            background: #fafafa;
-        }
-        
-        /* Mesaj Balonları */
-        .message { 
-            padding: 12px 18px; 
-            border-radius: 22px; 
-            font-size: 15px; 
-            line-height: 1.5; 
-            max-width: 85%; 
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
-        }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-bottom: 100px; background: #fafafa; }
+        .message { padding: 12px 18px; border-radius: 22px; font-size: 15px; line-height: 1.5; max-width: 85%; word-wrap: break-word; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .assistant-message { 
-            background: #ffffff; 
-            color: #444; 
-            align-self: flex-start; 
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            border: 1px solid #eee;
-        }
-        .user-message { 
-            background: #007aff; /* iOS Mavisi */
-            color: white; 
-            align-self: flex-end; 
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,122,255,0.25);
-        }
-
-        /* Hazır Butonlar */
-        .quick-actions { 
-            padding: 0 20px;
-            display: flex; 
-            gap: 8px; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            margin-bottom: 10px;
-        }
-        .action-btn { 
-            background: #eff6ff; 
-            border: 1px solid #dbeafe; 
-            color: #1d4ed8; 
-            padding: 8px 16px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-size: 13px; 
-            font-weight: 600; 
-            transition: all 0.2s;
-        }
+        .assistant-message { background: #ffffff; color: #444; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #eee; }
+        .user-message { background: #007aff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 2px 8px rgba(0,122,255,0.25); }
+        .quick-actions { padding: 0 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+        .action-btn { background: #eff6ff; border: 1px solid #dbeafe; color: #1d4ed8; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
         .action-btn:active { background: #dbeafe; transform: scale(0.95); }
-
-        /* Giriş Kutusu - SABİT VE ŞIK */
-        .chat-input {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            position: absolute; 
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            z-index: 999;
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 12px 20px;
-            border: 1px solid #e1e4e8;
-            border-radius: 30px; 
-            background: #f8f9fa;
-            color: #333;
-            font-size: 16px; /* 16px altı iOS'ta zoom yapar, bunu engelledik */
-            transition: border 0.3s;
-        }
+        .chat-input { padding: 15px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #f0f0f0; display: flex; align-items: center; position: absolute; bottom: 0; left: 0; width: 100%; z-index: 999; }
+        .chat-input input { flex: 1; padding: 12px 20px; border: 1px solid #e1e4e8; border-radius: 30px; background: #f8f9fa; color: #333; font-size: 16px; transition: border 0.3s; }
         .chat-input input:focus { border-color: #007aff; background: white; }
-        
-        .chat-input button {
-            background: #007aff; 
-            color: white; 
-            border: none; 
-            width: 44px; 
-            height: 44px; 
-            border-radius: 50%; 
-            margin-left: 10px; 
-            cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-        }
-
-        /* Yükleniyor Animasyonu */
+        .chat-input button { background: #007aff; color: white; border: none; width: 44px; height: 44px; border-radius: 50%; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
         .typing-indicator span { display: inline-block; width: 6px; height: 6px; background: #bbb; border-radius: 50%; margin: 0 2px; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.3; } }
     </style>
@@ -173,7 +42,6 @@
         </div>
         
         <div class="chat-messages" id="chat-messages"></div>
-        
         <div class="quick-actions" id="quick-actions"></div>
         
         <div class="chat-input">
@@ -187,8 +55,6 @@
         const API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
         
         let profileData = null;
-        let cachedModel = null;
-
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
@@ -197,24 +63,21 @@
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
 
-        // --- 2. JSON VERİSİNİ ÇEK (Cache Buster Eklendi) ---
+        // --- 2. JSON VERİSİNİ ÇEK ---
         async function loadData() {
             const params = new URLSearchParams(window.location.search);
             const user = params.get('k') || 'murat'; 
 
             try {
-                // Sonuna ?v=... ekleyerek tarayıcıyı taze dosya çekmeye zorluyoruz
+                // ?v=... cache busting
                 const response = await fetch(`${user}.json?v=${Date.now()}`);
-                
                 if (!response.ok) throw new Error("Dosya bulunamadı");
-                
                 profileData = await response.json();
                 initializeApp();
             } catch (error) {
                 console.error("Hata:", error);
                 headerName.innerText = "Hata";
-                headerTitle.innerText = "Kullanıcı Bulunamadı";
-                addMessage(`⚠️ <strong>${user}.json</strong> dosyası bulunamadı. Lütfen GitHub'a bu isimde bir dosya yüklediğinizden emin olun.`, "assistant");
+                addMessage(`⚠️ <strong>${user}.json</strong> dosyası bulunamadı.`, "assistant");
             }
         }
 
@@ -222,20 +85,18 @@
         function initializeApp() {
             headerName.innerText = profileData.identity.name;
             headerTitle.innerText = profileData.identity.title;
-            
             const safeName = profileData.identity.name.replace(" ", "+");
             avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=007aff&color=fff&size=150`;
 
-            // Hoşgeldin Mesajı
             setTimeout(() => {
                 addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım.`, 'assistant');
 
-                // HAZIR SORU BUTONLARI
+                // BUTONLARA TÜR EKLENDİ (type: 'local' veya 'ai')
                 const btns = [
-                    { text: "Kimdir?", action: `${profileData.identity.name} kimdir?` },
-                    { text: "Projeleri", action: "Hangi projeleri yaptı?" },
-                    { text: "Yetenekleri", action: "Yetenekleri neler?" },
-                    { text: "İletişim", action: "İletişim bilgileri" }
+                    { text: "Kimdir?", type: "local", key: "bio" },
+                    { text: "Projeler", type: "local", key: "projects" },
+                    { text: "Yetenekler", type: "local", key: "skills" },
+                    { text: "İletişim", type: "local", key: "contact" }
                 ];
 
                 quickActions.innerHTML = "";
@@ -243,82 +104,90 @@
                     const btn = document.createElement('button');
                     btn.className = 'action-btn';
                     btn.innerText = b.text;
-                    btn.onclick = () => handleAction(b.action, b.text);
+                    // Butonun tipine göre işlem yap
+                    btn.onclick = () => handleButton(b);
                     quickActions.appendChild(btn);
                 });
             }, 500);
-
-            findWorkingModel();
         }
 
-        // --- 4. MODEL SEÇİCİ ---
-        async function findWorkingModel() {
-            if (cachedModel) return cachedModel;
-            const candidates = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"];
-            
-            try {
-                const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
-                const response = await fetch(listUrl);
-                const data = await response.json();
+        // --- 4. HİBRİT CEVAP SİSTEMİ (ÖNEMLİ KISIM) ---
+        async function handleButton(btnData) {
+            addMessage(btnData.text, 'user');
+            showTyping();
 
-                if (data.models) {
-                    const availableModels = data.models
-                        .filter(m => m.supportedGenerationMethods.includes("generateContent"))
-                        .map(m => m.name.replace("models/", ""));
-                    
-                    for (const cand of candidates) {
-                        if (availableModels.includes(cand)) {
-                            cachedModel = cand;
-                            return cand;
-                        }
+            // Eğer "local" tipindeyse Google'a gitme, direkt cevap ver (KOTA GİTMEZ)
+            if (btnData.type === "local") {
+                setTimeout(() => {
+                    let answer = "";
+                    if (btnData.key === "bio") answer = profileData.identity.bio;
+                    else if (btnData.key === "contact") answer = `E-posta: ${profileData.contact.email}<br>LinkedIn: ${profileData.contact.linkedin}`;
+                    else if (btnData.key === "projects") {
+                        answer = "<strong>Projelerim:</strong><br>" + profileData.projects.map(p => `- ${p.name}: ${p.desc}`).join("<br>");
                     }
-                    if (availableModels.length > 0) cachedModel = availableModels[0];
-                }
-            } catch (e) {}
-            return "gemini-pro";
+                    else if (btnData.key === "skills") {
+                        answer = "<strong>Teknik Yetenekler:</strong><br>" + profileData.skills.tech.join(", ");
+                    }
+                    
+                    hideTyping();
+                    addMessage(answer, 'assistant');
+                }, 600); // Doğallık için yarım saniye bekle
+            } else {
+                // Sadece custom sorular için AI kullan
+                const response = await getGeminiResponse(btnData.text);
+                hideTyping();
+                addMessage(response, 'assistant');
+            }
         }
 
-        // --- 5. YAPAY ZEKA CEVABI ---
-        async function getBotResponse(userMessage) {
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            
+            addMessage(text, 'user');
+            userInput.value = '';
+            showTyping();
+            
+            // Kullanıcı kendi eliyle yazdıysa mecburen AI kullanacağız
+            const response = await getGeminiResponse(text);
+            hideTyping();
+            addMessage(response, 'assistant');
+        }
+
+        // --- 5. YAPAY ZEKA (SADECE GEREKTİĞİNDE) ---
+        async function getGeminiResponse(userMessage) {
             if (!profileData) return "Veriler yüklenmedi.";
-
-            const contextData = JSON.stringify(profileData, null, 2);
-            const systemInstruction = `
-                Sen ${profileData.identity.name}'in asistanısın.
-                GÖREVİN: Aşağıdaki "KİŞİSEL VERİLER"i kullanarak soruları cevapla.
-                KURALLAR: "Murat Bey" diye hitap et. Samimi ol. Kısa ve net cevap ver.
-                KİŞİSEL VERİLER: ${contextData}
-            `;
-
-            const modelName = await findWorkingModel() || "gemini-pro";
+            
+            // Sabit olarak en hızlı ve limiti en yüksek modeli seçtim: FLASH
+            const modelName = "gemini-1.5-flash"; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
 
-            const requestBody = {
-                contents: [{
-                    parts: [{ text: systemInstruction + "\n\nSORU: " + userMessage }]
-                }]
-            };
+            const contextData = JSON.stringify(profileData, null, 2);
+            const systemInstruction = `Sen ${profileData.identity.name}'in asistanısın. Bilgilere göre kısa cevap ver. BİLGİLER: ${contextData}`;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({ contents: [{ parts: [{ text: systemInstruction + "\n\nSORU: " + userMessage }] }] })
                 });
+
+                if (!response.ok) {
+                    if (response.status === 429) return "Çok fazla istek yapıldı. Lütfen biraz bekleyin.";
+                    return "Bağlantı hatası oluştu.";
+                }
+
                 const data = await response.json();
                 return data.candidates[0].content.parts[0].text;
             } catch (error) {
-                return "Bağlantı hatası.";
+                return "İnternet bağlantınızı kontrol edin.";
             }
         }
 
-        // --- YARDIMCILAR ---
         function addMessage(text, sender) {
             const div = document.createElement('div');
             div.classList.add('message', `${sender}-message`);
-            div.innerHTML = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>')
-                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                .replace(/\n/g, '<br>');
+            div.innerHTML = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>').replace(/\n/g, '<br>');
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -337,25 +206,6 @@
             if (el) el.remove();
         }
 
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-            addMessage(text, 'user');
-            userInput.value = '';
-            showTyping();
-            const response = await getBotResponse(text);
-            hideTyping();
-            addMessage(response, 'assistant');
-        }
-
-        async function handleAction(action, text) {
-            addMessage(text, 'user');
-            showTyping();
-            const response = await getBotResponse(action);
-            hideTyping();
-            addMessage(response, 'assistant');
-        }
-
         sendBtn.onclick = sendMessage;
         userInput.onkeydown = (e) => { if(e.key === 'Enter') sendMessage() };
         window.onload = loadData;
@@ -363,4 +213,3 @@
     </script>
 </body>
 </html>
-
