@@ -9,24 +9,15 @@
     <style>
         /* GİRİŞ KUTUSU İÇİN ZORLAYICI AYARLAR */
         .chat-input input {
-            /* Yazı rengini kesinlikle SİYAH yap */
             color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important; /* Safari/Chrome için */
-            
-            /* Arka planı kesinlikle BEYAZ yap */
+            -webkit-text-fill-color: #000000 !important;
             background-color: #ffffff !important;
-            
-            /* Tıklamayı ve seçmeyi aç */
             pointer-events: auto !important;
             user-select: text !important;
-            
-            /* Diğer engelleri kaldır */
             opacity: 1 !important;
             visibility: visible !important;
             z-index: 9999 !important;
         }
-
-        /* Eğer placeholder (ipucu yazısı) görünmüyorsa rengini gri yap */
         .chat-input input::placeholder {
             color: #666666 !important;
             opacity: 1 !important;
@@ -54,11 +45,9 @@
     </div>
 
     <script>
-        // --- API AYARLARI ---
         const API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
         let workingModelName = "gemini-1.5-flash"; 
 
-        // --- YEDEK VERİ ---
         const FALLBACK_DATA = {
             identity: {
                 name: "Murat Tekin",
@@ -73,7 +62,6 @@
 
         let profileData = null; 
 
-        // Elementler
         const headerName = document.getElementById('header-name');
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
@@ -82,13 +70,13 @@
         const sendBtn = document.getElementById('send-btn');
         const quickActions = document.getElementById('quick-actions');
 
-        // --- 1. SİSTEMİ BAŞLAT ---
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('k') || 'murat';
 
             try {
-                const response = await fetch(`users/${userId}.json`);
+                // DÜZELTME BURADA YAPILDI: 'users/' silindi.
+                const response = await fetch(`${userId}.json`);
                 if (!response.ok) throw new Error("Dosya yok");
                 profileData = await response.json();
             } catch (error) {
@@ -125,12 +113,10 @@
                 quickActions.appendChild(btn);
             });
             
-            // Kutuyu temizle ve odaklan
             userInput.value = "";
             userInput.focus();
         }
 
-        // --- 2. MODEL BULUCU ---
         async function findBestModel() {
             try {
                 const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
@@ -153,7 +139,6 @@
             } catch (e) { console.log("Varsayılan model kullanılıyor."); }
         }
 
-        // --- 3. SOHBET ---
         async function getGeminiResponse(text) {
             const context = JSON.stringify(profileData, null, 2);
             const prompt = `Sen ${profileData.identity.name}'in asistanısın. Bilgilere göre cevap ver. BİLGİLER: ${context} SORU: ${text}`;
@@ -215,7 +200,6 @@
         sendBtn.onclick = () => handleInput(userInput.value);
         userInput.onkeydown = (e) => e.key === 'Enter' && handleInput(userInput.value);
 
-        // Başlat
         window.onload = init;
     </script>
 </body>
