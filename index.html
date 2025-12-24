@@ -4,23 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akıllı Asistan</title>
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=100">
     
     <style>
-        /* GİRİŞ KUTUSU İÇİN ZORLAYICI AYARLAR */
-        .chat-input input {
-            color: #000000 !important;
-            -webkit-text-fill-color: #000000 !important;
-            background-color: #ffffff !important;
-            pointer-events: auto !important;
-            user-select: text !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            z-index: 9999 !important;
+        /* ATOM BOMBASI CSS'İ */
+        /* Giriş kutusunu sayfanın akışından çıkarıp en alta çakıyoruz */
+        .chat-input {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 70px !important;
+            background-color: white !important;
+            border-top: 1px solid #ddd !important;
+            display: flex !important;
+            align-items: center !important;
+            padding: 10px !important;
+            box-sizing: border-box !important;
+            z-index: 2147483647 !important; /* Dünyanın en yüksek katmanı */
         }
-        .chat-input input::placeholder {
-            color: #666666 !important;
+
+        /* Mesaj kutusunun altı giriş kutusunun altında kalmasın diye boşluk bırak */
+        .chat-messages {
+            padding-bottom: 80px !important; 
+        }
+
+        /* Input alanını her şeye rağmen tıklanabilir yap */
+        .chat-input input {
+            flex: 1 !important;
+            padding: 10px !important;
+            font-size: 16px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 20px !important;
+            color: black !important;
+            background: white !important;
+            pointer-events: auto !important;
             opacity: 1 !important;
+        }
+
+        .chat-input button {
+            margin-left: 10px !important;
+            padding: 10px 20px !important;
+            background: #007bff !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
         }
     </style>
 </head>
@@ -38,30 +68,33 @@
         <div class="chat-messages" id="chat-messages"></div>
         <div class="quick-actions" id="quick-actions"></div>
         
-        <div class="chat-input" style="z-index: 10000;">
-            <input type="text" id="user-input" placeholder="Buraya yazın..." autocomplete="off" autofocus>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Mesaj yaz..." autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
     </div>
 
     <script>
+        // --- 1. AYARLAR ---
         const API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
-        let workingModelName = "gemini-1.5-flash"; 
-
+        
+        // --- 2. YEDEK VERİ (KODUN İÇİNDE) ---
         const FALLBACK_DATA = {
             identity: {
                 name: "Murat Tekin",
                 title: "Bilgisayar Müh. Öğrencisi",
-                location: "Isparta, Türkiye",
-                bio: "Teknolojiye tutkuyla bağlı, Isparta Uygulamalı Bilimler Üniversitesi öğrencisi."
+                location: "Isparta",
+                bio: "Merhaba, ben Murat Tekin'in yapay zeka asistanıyım."
             },
-            skills: { tech: ["Unity", "C#", "Python", "AI"], creative: ["Video Kurgu"] },
-            projects: [{ name: "GADIN BURDUR", desc: "Unity ile geliştirilen oyun." }],
-            contact: { email: "murat@ornek.com", linkedin: "#" }
+            skills: { tech: ["Unity", "C#"], creative: ["Video"] },
+            projects: [],
+            contact: { email: "murat@mail.com", linkedin: "" }
         };
 
-        let profileData = null; 
+        let profileData = null;
+        let workingModelName = "gemini-1.5-flash";
 
+        // DOM
         const headerName = document.getElementById('header-name');
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
@@ -70,21 +103,25 @@
         const sendBtn = document.getElementById('send-btn');
         const quickActions = document.getElementById('quick-actions');
 
+        // --- 3. BAŞLATMA ---
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('k') || 'murat';
 
             try {
-                // DÜZELTME BURADA YAPILDI: 'users/' silindi.
+                // Fetch işlemi - users/ yok, direkt dosya adı
                 const response = await fetch(`${userId}.json`);
-                if (!response.ok) throw new Error("Dosya yok");
+                if (!response.ok) throw new Error("JSON Dosyası Yok");
                 profileData = await response.json();
             } catch (error) {
-                console.warn("Yedek veri kullanılıyor.");
+                console.warn("Dosya bulunamadı, yedek veri yükleniyor.");
                 profileData = FALLBACK_DATA; 
             }
 
+            // Arayüzü güncelle
             updateUI();
+            
+            // Modeli bul
             findBestModel();
         }
 
@@ -96,11 +133,10 @@
 
             addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in asistanıyım.`, 'assistant');
 
-            const firstName = profileData.identity.name.split(' ')[0];
+            // Butonlar
             const btns = [
-                { text: `${firstName} kimdir?`, prompt: `${firstName} kimdir?` },
-                { text: "Projeleri", prompt: "Hangi projeleri yaptı?" },
-                { text: "Yetenekleri", prompt: "Yetenekleri neler?" },
+                { text: "Kimdir?", prompt: `${profileData.identity.name} kimdir?` },
+                { text: "Projeler", prompt: "Hangi projeleri yaptı?" },
                 { text: "İletişim", prompt: "İletişim bilgileri" }
             ];
 
@@ -113,10 +149,12 @@
                 quickActions.appendChild(btn);
             });
             
+            // KUTUYU ZORLA ODAKLA
             userInput.value = "";
-            userInput.focus();
+            setTimeout(() => userInput.focus(), 500); // Yarım saniye sonra odaklan
         }
 
+        // --- 4. MODEL SEÇİCİ ---
         async function findBestModel() {
             try {
                 const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
@@ -136,13 +174,13 @@
                     }
                     if (availableModels.length > 0) workingModelName = availableModels[0];
                 }
-            } catch (e) { console.log("Varsayılan model kullanılıyor."); }
+            } catch (e) { console.log("Varsayılan model."); }
         }
 
+        // --- 5. SOHBET ---
         async function getGeminiResponse(text) {
             const context = JSON.stringify(profileData, null, 2);
-            const prompt = `Sen ${profileData.identity.name}'in asistanısın. Bilgilere göre cevap ver. BİLGİLER: ${context} SORU: ${text}`;
-            
+            const prompt = `Sen ${profileData.identity.name}'in asistanısın. Kısa cevap ver. BİLGİLER: ${context} SORU: ${text}`;
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${workingModelName}:generateContent?key=${API_KEY}`;
             
             try {
@@ -151,17 +189,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
-
-                if (!req.ok) {
-                    const err = await req.json();
-                    return `Hata: ${err.error.message}`;
-                }
-
                 const res = await req.json();
                 return res.candidates[0].content.parts[0].text;
-            } catch (e) {
-                return "Bağlantı hatası.";
-            }
+            } catch (e) { return "Bağlantı hatası."; }
         }
 
         async function handleInput(text) {
@@ -169,6 +199,7 @@
             addMessage(text, 'user');
             userInput.value = '';
             quickActions.style.display = 'none';
+            
             showTyping();
             const response = await getGeminiResponse(text);
             hideTyping();
@@ -178,7 +209,7 @@
         function addMessage(html, sender) {
             const div = document.createElement('div');
             div.className = `message ${sender}-message`;
-            div.innerHTML = html.replace(/\n/g, '<br>');
+            div.innerHTML = html;
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -187,7 +218,7 @@
             const div = document.createElement('div');
             div.id = 'typing';
             div.className = 'message assistant-message';
-            div.innerHTML = '<div class="typing-indicator"><span>.</span><span>.</span><span>.</span></div>';
+            div.innerText = '...';
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
