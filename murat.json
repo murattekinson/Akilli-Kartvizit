@@ -1,0 +1,19 @@
+{
+    "identity": {
+        "name": "Murat Tekin",
+        "title": "Bilgisayar Mühendisi",
+        "location": "Isparta",
+        "bio": "Merhaba ben Murat."
+    },
+    "skills": {
+        "tech": ["Unity", "C#"],
+        "creative": ["Video", "Tasarım"],
+        "soft": ["Girişimcilik"]
+    },
+    "projects": [],
+    "contact": {
+        "email": "m@test.com",
+        "linkedin": "",
+        "github": ""
+    }
+}

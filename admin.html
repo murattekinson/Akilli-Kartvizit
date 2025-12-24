@@ -1,0 +1,174 @@
+<script>
+        // --- API AYARI ---
+        let API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
+        
+        // Bu değişkeni global yapıyoruz, veriler buraya dolacak
+        let profileData = null; 
+
+        // DOM Elementleri
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const quickActions = document.getElementById('quick-actions');
+        const headerName = document.getElementById('header-name');
+        const headerTitle = document.getElementById('header-title');
+
+        // --- 1. DİNAMİK VERİ YÜKLEME ---
+        async function loadUserData() {
+            // URL'den kullanıcı adını al (?k=murat)
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('k') || 'murat'; // Eğer boşsa varsayılan 'murat' olsun
+
+            try {
+                // İlgili JSON dosyasını çek
+                const response = await fetch(`users/${userId}.json`);
+                
+                if (!response.ok) throw new Error("Kullanıcı bulunamadı");
+                
+                profileData = await response.json();
+                
+                // Başlıkları güncelle
+                headerName.innerText = profileData.identity.name;
+                headerTitle.innerText = profileData.identity.title;
+                
+                // Profil fotosunu isme göre güncelle
+                const safeName = profileData.identity.name.replace(" ", "+");
+                document.querySelector('.chat-header img').src = 
+                    `https://ui-avatars.com/api/?name=${safeName}&background=007bff&color=fff&size=150`;
+
+                // Asistanı Başlat
+                startAssistant();
+
+            } catch (error) {
+                console.error(error);
+                headerName.innerText = "Hata!";
+                headerTitle.innerText = "Kullanıcı Bulunamadı";
+                addMessage("Üzgünüm, aradığınız kişi sistemde kayıtlı değil veya bir hata oluştu.", "assistant");
+            }
+        }
+
+        // --- 2. ASİSTAN BAŞLANGIÇ SENARYOSU ---
+        function startAssistant() {
+            showTyping();
+            // Otomatik model bulma ve selamlama
+            findWorkingModel().then(() => {
+                hideTyping();
+                addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım. Size nasıl yardımcı olabilirim?`, 'assistant');
+                
+                const btns = [
+                    { text: `${profileData.identity.name.split(' ')[0]} kimdir?`, action: "Kimdir?" },
+                    { text: "Projeleri", action: "Hangi projeleri yaptı?" },
+                    { text: "Yetenekleri", action: "Yetenekleri neler?" },
+                    { text: "İletişim", action: "İletişim bilgileri" }
+                ];
+                
+                quickActions.innerHTML = ""; // Önce temizle
+                btns.forEach(b => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.innerText = b.text;
+                    btn.onclick = () => handleAction(b.action, b.text);
+                    quickActions.appendChild(btn);
+                });
+            });
+        }
+
+        // --- 3. MODEL SEÇİMİ VE CEVAPLAMA (Önceki kodun aynısı) ---
+        let cachedModel = null;
+
+        async function findWorkingModel() {
+            if (cachedModel) return cachedModel;
+            // Hızlıca varsayılanı döndür, arka planda hata alırsak değiştiririz
+            // (Burayı basitleştirdim ki kullanıcı beklemesin)
+            cachedModel = "gemini-1.5-flash"; 
+            return cachedModel;
+        }
+
+        async function getBotResponse(userMessage) {
+            if (!profileData) return "Veriler yüklenemedi.";
+
+            const contextData = JSON.stringify(profileData, null, 2);
+            
+            // Model seçimi (Basit mantık: Flash dene, olmazsa Pro dene)
+            let model = cachedModel || "gemini-1.5-flash";
+            let url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+            
+            const systemInstruction = `
+                Sen ${profileData.identity.name}'in asistanısın.
+                GÖREVİN: Aşağıdaki "KİŞİSEL VERİLER"i kullanarak soruları cevapla.
+                KURALLAR: "${profileData.identity.name.split(' ')[0]} Bey/Hanım" diye hitap et. Samimi ol.
+                KİŞİSEL VERİLER: ${contextData}
+            `;
+
+            const requestBody = { contents: [{ parts: [{ text: systemInstruction + "\n\nSORU: " + userMessage }] }] };
+
+            try {
+                let response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                
+                // Eğer 404 veya hata alırsak PRO modeline geçip tekrar dene
+                if (!response.ok) {
+                    console.warn("Flash modeli hata verdi, Pro modeline geçiliyor...");
+                    url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                    response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                }
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                return "Bağlantı hatası. İnternetinizi kontrol edin.";
+            }
+        }
+
+        // --- 4. ARAYÜZ FONKSİYONLARI ---
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('message', `${sender}-message`);
+            div.innerHTML = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>')
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\n/g, '<br>');
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'message assistant-message typing';
+            div.id = 'typing';
+            div.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const el = document.getElementById('typing');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            addMessage(text, 'user');
+            userInput.value = '';
+            quickActions.style.display = 'none';
+            showTyping();
+            const response = await getBotResponse(text);
+            hideTyping();
+            addMessage(response, 'assistant');
+        }
+
+        async function handleAction(action, text) {
+            if (action.startsWith('http')) { window.open(action, '_blank'); return; }
+            addMessage(text, 'user');
+            quickActions.style.display = 'none';
+            showTyping();
+            const response = await getBotResponse(text);
+            hideTyping();
+            addMessage(response, 'assistant');
+        }
+
+        // Sayfa yüklenince verileri çekmeye başla
+        window.addEventListener('load', loadUserData);
+
+        sendBtn.onclick = sendMessage;
+        userInput.onkeydown = (e) => { if(e.key === 'Enter') sendMessage() };
+    </script>
