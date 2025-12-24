@@ -4,64 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Murat Tekin | Akıllı Asistan</title>
-    
-    <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; margin: 0; display: flex; justify-content: center; height: 100vh; }
-        .chat-container { width: 100%; max-width: 450px; background: white; display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        
-        .chat-header { background: #007bff; color: white; padding: 15px; display: flex; align-items: center; }
-        .chat-header img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; background: white; }
-        .chat-header h1 { font-size: 18px; margin: 0; }
-        .chat-header p { font-size: 12px; margin: 0; opacity: 0.8; }
-
-        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
-        
-        .message { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 14px; line-height: 1.4; }
-        .assistant-message { background: #f1f1f1; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user-message { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-
-        .quick-actions { padding: 10px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .action-btn { background: #e9f5ff; border: 1px solid #007bff; color: #007bff; padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; }
-
-        /* GİRİŞ KUTUSU - ZORLA ÇALIŞTIRMA AYARLARI */
-        .chat-input {
-            border-top: 1px solid #ddd;
-            padding: 15px;
-            background: white;
-            display: flex;
-            align-items: center;
-            position: fixed; /* Sayfanın altına sabitle */
-            bottom: 0;
-            width: 100%;
-            max-width: 450px; /* Container genişliği kadar */
-            box-sizing: border-box;
-            z-index: 9999; /* En üstte kalsın */
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            background: white !important;
-            color: black !important;
-            pointer-events: auto !important; /* Tıklanabilir yap */
-        }
-        
-        .chat-input button {
-            background: #007bff; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; cursor: pointer;
-        }
-
-        .typing-indicator span { display: inline-block; width: 6px; height: 6px; background: #999; border-radius: 50%; margin: 0 2px; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.2; } }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="chat-container">
         <div class="chat-header">
-            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan" alt="Profil">
+            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan&background=007bff&color=fff&size=150" alt="Profil">
             <div class="info">
                 <h1 id="header-name">Yükleniyor...</h1>
                 <p id="header-title">Dijital Asistan</p>
@@ -72,15 +21,19 @@
         <div class="quick-actions" id="quick-actions"></div>
         
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Bir soru sorun..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Bir soru sorun...">
             <button id="send-btn">➤</button>
         </div>
     </div>
 
     <script>
+        // --- 1. AYARLAR ---
+        // Senin API Anahtarın
         const API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
-        let cachedModel = null;
-        let profileData = null; // Veriler buraya gelecek
+        
+        // Değişkenler
+        let profileData = null; // JSON verisi buraya dolacak
+        let cachedModel = null; // Çalışan model buraya kaydedilecek
 
         // DOM Elementleri
         const chatMessages = document.getElementById('chat-messages');
@@ -91,68 +44,68 @@
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
 
-        // --- 1. VERİLERİ JSON DOSYASINDAN ÇEK ---
+        // --- 2. JSON VERİSİNİ ÇEKME FONKSİYONU ---
         async function loadData() {
-            // URL'den kullanıcı adını al (?k=murat)
+            // URL'den kullanıcıyı belirle (Örn: ?k=murat)
             const params = new URLSearchParams(window.location.search);
             const user = params.get('k') || 'murat'; // Varsayılan: murat
 
             try {
-                // murat.json dosyasını çekiyoruz
-                // "fetch" komutu data.js yerine dosyayı okur
+                // murat.json dosyasını oku
                 const response = await fetch(`${user}.json`);
+                
                 if (!response.ok) throw new Error("Dosya bulunamadı");
                 
                 profileData = await response.json();
                 
-                // Veri gelince Başlat
+                // Veri geldi, arayüzü başlat
                 initializeApp();
+                
             } catch (error) {
-                console.error("Veri yükleme hatası:", error);
-                // Hata olursa varsayılan bir veri ile aç (Çökmemesi için)
-                profileData = {
-                    identity: { name: "Murat Tekin", title: "Öğrenci" },
-                    projects: [], skills: { tech: [] }, contact: {}
-                };
-                addMessage("Veri dosyası yüklenemedi, ancak sohbet edebiliriz.", "assistant");
-                initializeApp();
+                console.error("Hata:", error);
+                headerName.innerText = "Hata!";
+                addMessage("Veri dosyası (murat.json) yüklenemedi. Lütfen dosya ismini ve konumunu kontrol edin.", "assistant");
             }
         }
 
-        // --- 2. UYGULAMAYI BAŞLAT ---
+        // --- 3. ARAYÜZÜ BAŞLATMA ---
         function initializeApp() {
+            // Başlık ve Resmi Güncelle
             headerName.innerText = profileData.identity.name;
             headerTitle.innerText = profileData.identity.title;
             
-            // Avatarı isme göre güncelle
             const safeName = profileData.identity.name.replace(" ", "+");
             avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=007bff&color=fff&size=150`;
 
-            // İlk mesaj
-            addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım. Size nasıl yardımcı olabilirim?`, 'assistant');
+            // Hoşgeldin Mesajı
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım. Size nasıl yardımcı olabilirim?`, 'assistant');
 
-            // Butonları oluştur
-            const btns = [
-                { text: "Kimdir?", action: "Kimdir?" },
-                { text: "Projeleri", action: "Hangi projeleri yaptı?" },
-                { text: "Yetenekleri", action: "Yetenekleri neler?" },
-                { text: "İletişim", action: "İletişim bilgileri" }
-            ];
+                // Butonları Oluştur
+                const btns = [
+                    { text: "Kimdir?", action: `${profileData.identity.name} kimdir?` },
+                    { text: "Projeleri", action: "Hangi projeleri yaptı?" },
+                    { text: "Yetenekleri", action: "Yetenekleri neler?" },
+                    { text: "İletişim", action: "İletişim bilgileri" }
+                ];
 
-            quickActions.innerHTML = "";
-            btns.forEach(b => {
-                const btn = document.createElement('button');
-                btn.className = 'action-btn';
-                btn.innerText = b.text;
-                btn.onclick = () => handleAction(b.action, b.text);
-                quickActions.appendChild(btn);
-            });
+                quickActions.innerHTML = "";
+                btns.forEach(b => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.innerText = b.text;
+                    btn.onclick = () => handleAction(b.action, b.text);
+                    quickActions.appendChild(btn);
+                });
+            }, 500);
 
-            // Model bulmayı başlat
+            // Arka planda modeli bul
             findWorkingModel();
         }
 
-        // --- 3. MODEL BULMA (Senin kodun aynısı) ---
+        // --- 4. MODEL BULUCU (Senin kodun aynısı) ---
         async function findWorkingModel() {
             if (cachedModel) return cachedModel;
             const candidates = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"];
@@ -175,20 +128,29 @@
                     }
                     if (availableModels.length > 0) cachedModel = availableModels[0];
                 }
-            } catch (e) {}
+            } catch (e) { console.log("Model listesi alınamadı, varsayılan denenecek."); }
             return "gemini-pro";
         }
 
-        // --- 4. CEVAP ÜRETME ---
+        // --- 5. API İLE KONUŞMA ---
         async function getBotResponse(userMessage) {
+            if (!profileData) return "Veriler henüz yüklenmedi.";
+
             const contextData = JSON.stringify(profileData, null, 2);
-            const systemInstruction = `Sen ${profileData.identity.name}'in asistanısın. KİŞİSEL VERİLER: ${contextData}`;
-            
+            const systemInstruction = `
+                Sen ${profileData.identity.name}'in asistanısın.
+                GÖREVİN: Aşağıdaki "KİŞİSEL VERİLER"i kullanarak soruları cevapla.
+                KURALLAR: "Murat Bey" diye hitap et. Samimi ol. Bilmediğini uydurma.
+                KİŞİSEL VERİLER: ${contextData}
+            `;
+
             const modelName = await findWorkingModel() || "gemini-pro";
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
-            
+
             const requestBody = {
-                contents: [{ parts: [{ text: systemInstruction + "\n\nSORU: " + userMessage }] }]
+                contents: [{
+                    parts: [{ text: systemInstruction + "\n\nKULLANICI SORUSU: " + userMessage }]
+                }]
             };
 
             try {
@@ -197,18 +159,29 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    return `Hata: ${err.error.message}`;
+                }
+
                 const data = await response.json();
                 return data.candidates[0].content.parts[0].text;
+
             } catch (error) {
-                return "Bağlantı hatası.";
+                return "Bağlantı hatası. İnternetinizi kontrol edin.";
             }
         }
 
-        // --- ARAYÜZ FONKSİYONLARI ---
+        // --- ARAYÜZ YARDIMCILARI ---
         function addMessage(text, sender) {
             const div = document.createElement('div');
             div.classList.add('message', `${sender}-message`);
-            div.innerHTML = text.replace(/\n/g, '<br>');
+            // Linkleri ve formatı düzenle
+            let formatted = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>')
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\n/g, '<br>');
+            div.innerHTML = formatted;
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -243,15 +216,16 @@
             addMessage(text, 'user');
             quickActions.style.display = 'none';
             showTyping();
-            const response = await getBotResponse(text);
+            const response = await getBotResponse(action); // Butonun aksiyon metnini gönder
             hideTyping();
             addMessage(response, 'assistant');
         }
 
+        // Olay Dinleyicileri
         sendBtn.onclick = sendMessage;
         userInput.onkeydown = (e) => { if(e.key === 'Enter') sendMessage() };
 
-        // SAYFA YÜKLENİNCE BAŞLAT
+        // Sayfa yüklenince JSON'u çekmeye başla
         window.onload = loadData;
 
     </script>
