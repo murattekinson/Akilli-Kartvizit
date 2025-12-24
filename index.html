@@ -4,13 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Murat Tekin | Akıllı Asistan</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- YUMUŞAK VE MODERN TASARIM --- */
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            height: 100vh; 
+        }
+
+        .chat-container { 
+            width: 100%; 
+            max-width: 450px; 
+            background: white; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Yumuşak gölge */
+            /* Bilgisayarda kenarlar yuvarlak görünsün, mobilde tam ekran */
+            @media (min-width: 480px) {
+                height: 90vh;
+                margin-top: 5vh;
+                border-radius: 30px; 
+                overflow: hidden;
+            }
+        }
+        
+        /* Üst Başlık - Yuvarlak Hatlar */
+        .chat-header { 
+            background: linear-gradient(135deg, #0061f2, #00c6f7); /* Modern Mavi Gradyan */
+            color: white; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            border-radius: 0 0 25px 25px; /* Alt köşeleri yuvarla */
+            box-shadow: 0 5px 15px rgba(0,100,250,0.2);
+            z-index: 10;
+        }
+        .chat-header img { 
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            margin-right: 15px; 
+            border: 3px solid rgba(255,255,255,0.3); 
+        }
+        .chat-header h1 { font-size: 20px; margin: 0; font-weight: 600; }
+        .chat-header p { font-size: 13px; margin: 0; opacity: 0.9; }
+
+        /* Mesaj Alanı */
+        .chat-messages { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            padding-bottom: 90px; 
+            background: #fff;
+        }
+        
+        /* Mesaj Balonları - Tam Yuvarlak */
+        .message { 
+            padding: 12px 18px; 
+            border-radius: 20px; 
+            font-size: 15px; 
+            line-height: 1.5; 
+            max-width: 80%; 
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .assistant-message { 
+            background: #f1f3f5; 
+            color: #333; 
+            align-self: flex-start; 
+            border-bottom-left-radius: 5px; /* Konuşma balonu efekti */
+        }
+        .user-message { 
+            background: #0061f2; 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 5px; /* Konuşma balonu efekti */
+        }
+
+        /* Hızlı Butonlar - Hap Şeklinde */
+        .quick-actions { 
+            padding: 10px 20px; 
+            display: flex; 
+            gap: 8px; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+        }
+        .action-btn { 
+            background: #eef4ff; 
+            border: none; 
+            color: #0061f2; 
+            padding: 10px 18px; 
+            border-radius: 25px; /* Hap şekli */
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: 600; 
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: #dce9ff; transform: scale(1.05); }
+
+        /* Giriş Kutusu - Havada Duran Tasarım */
+        .chat-input {
+            padding: 15px;
+            background: white;
+            display: flex;
+            align-items: center;
+            position: fixed; 
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%); /* Ortala */
+            width: 100%;
+            max-width: 450px; 
+            box-sizing: border-box;
+            z-index: 9999;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        /* Yazı Yazma Alanı - Tam Oval */
+        .chat-input input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid #e1e4e8;
+            border-radius: 30px; /* Tam oval */
+            outline: none;
+            background: #f8f9fa !important;
+            color: #333 !important;
+            font-size: 15px;
+            pointer-events: auto !important;
+            transition: border 0.3s;
+        }
+        .chat-input input:focus { border-color: #0061f2; background: white !important; }
+        
+        /* Gönder Butonu */
+        .chat-input button {
+            background: #0061f2; 
+            color: white; 
+            border: none; 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            margin-left: 10px; 
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,97,242,0.3);
+            transition: transform 0.2s;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 18px;
+        }
+        .chat-input button:active { transform: scale(0.9); }
+
+        /* Yazıyor animasyonu */
+        .typing-indicator span { display: inline-block; width: 6px; height: 6px; background: #bbb; border-radius: 50%; margin: 0 2px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+    </style>
 </head>
 <body>
 
     <div class="chat-container">
         <div class="chat-header">
-            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan&background=007bff&color=fff&size=150" alt="Profil">
+            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan&background=0061f2&color=fff&size=150" alt="Profil">
             <div class="info">
                 <h1 id="header-name">Yükleniyor...</h1>
                 <p id="header-title">Dijital Asistan</p>
@@ -21,21 +181,18 @@
         <div class="quick-actions" id="quick-actions"></div>
         
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Bir soru sorun...">
+            <input type="text" id="user-input" placeholder="Bir mesaj yazın..." autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
     </div>
 
     <script>
         // --- 1. AYARLAR ---
-        // Senin API Anahtarın
         const API_KEY = "AIzaSyDbzZbyccqy0pWig9lAP38rSSUkc4A988U".trim(); 
         
-        // Değişkenler
-        let profileData = null; // JSON verisi buraya dolacak
-        let cachedModel = null; // Çalışan model buraya kaydedilecek
+        let profileData = null;
+        let cachedModel = null;
 
-        // DOM Elementleri
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
@@ -44,49 +201,40 @@
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
 
-        // --- 2. JSON VERİSİNİ ÇEKME FONKSİYONU ---
+        // --- 2. JSON VERİSİNİ ÇEK ---
         async function loadData() {
-            // URL'den kullanıcıyı belirle (Örn: ?k=murat)
             const params = new URLSearchParams(window.location.search);
-            const user = params.get('k') || 'murat'; // Varsayılan: murat
+            const user = params.get('k') || 'murat'; 
 
             try {
-                // murat.json dosyasını oku
+                // murat.json dosyasını çek
                 const response = await fetch(`${user}.json`);
-                
                 if (!response.ok) throw new Error("Dosya bulunamadı");
-                
                 profileData = await response.json();
-                
-                // Veri geldi, arayüzü başlat
                 initializeApp();
-                
             } catch (error) {
                 console.error("Hata:", error);
                 headerName.innerText = "Hata!";
-                addMessage("Veri dosyası (murat.json) yüklenemedi. Lütfen dosya ismini ve konumunu kontrol edin.", "assistant");
+                addMessage("Veri dosyası yüklenemedi. Lütfen 'murat.json' dosyasının yüklü olduğundan emin olun.", "assistant");
             }
         }
 
-        // --- 3. ARAYÜZÜ BAŞLATMA ---
+        // --- 3. ARAYÜZÜ BAŞLAT ---
         function initializeApp() {
-            // Başlık ve Resmi Güncelle
             headerName.innerText = profileData.identity.name;
             headerTitle.innerText = profileData.identity.title;
             
             const safeName = profileData.identity.name.replace(" ", "+");
-            avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=007bff&color=fff&size=150`;
+            avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=0061f2&color=fff&size=150`;
 
             // Hoşgeldin Mesajı
-            showTyping();
             setTimeout(() => {
-                hideTyping();
                 addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım. Size nasıl yardımcı olabilirim?`, 'assistant');
 
-                // Butonları Oluştur
+                // HAZIR SORU BUTONLARI (Buraya eklendi)
                 const btns = [
                     { text: "Kimdir?", action: `${profileData.identity.name} kimdir?` },
-                    { text: "Projeleri", action: "Hangi projeleri yaptı?" },
+                    { text: "Projeler", action: "Hangi projeleri yaptı?" },
                     { text: "Yetenekleri", action: "Yetenekleri neler?" },
                     { text: "İletişim", action: "İletişim bilgileri" }
                 ];
@@ -101,11 +249,11 @@
                 });
             }, 500);
 
-            // Arka planda modeli bul
+            // Modeli bul
             findWorkingModel();
         }
 
-        // --- 4. MODEL BULUCU (Senin kodun aynısı) ---
+        // --- 4. MODEL SEÇİCİ ---
         async function findWorkingModel() {
             if (cachedModel) return cachedModel;
             const candidates = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro", "gemini-1.0-pro"];
@@ -128,19 +276,19 @@
                     }
                     if (availableModels.length > 0) cachedModel = availableModels[0];
                 }
-            } catch (e) { console.log("Model listesi alınamadı, varsayılan denenecek."); }
+            } catch (e) {}
             return "gemini-pro";
         }
 
-        // --- 5. API İLE KONUŞMA ---
+        // --- 5. YAPAY ZEKA ---
         async function getBotResponse(userMessage) {
-            if (!profileData) return "Veriler henüz yüklenmedi.";
+            if (!profileData) return "Veriler yüklenmedi.";
 
             const contextData = JSON.stringify(profileData, null, 2);
             const systemInstruction = `
                 Sen ${profileData.identity.name}'in asistanısın.
                 GÖREVİN: Aşağıdaki "KİŞİSEL VERİLER"i kullanarak soruları cevapla.
-                KURALLAR: "Murat Bey" diye hitap et. Samimi ol. Bilmediğini uydurma.
+                KURALLAR: "Murat Bey" diye hitap et. Samimi ol. Kısa ve net cevap ver.
                 KİŞİSEL VERİLER: ${contextData}
             `;
 
@@ -149,7 +297,7 @@
 
             const requestBody = {
                 contents: [{
-                    parts: [{ text: systemInstruction + "\n\nKULLANICI SORUSU: " + userMessage }]
+                    parts: [{ text: systemInstruction + "\n\nSORU: " + userMessage }]
                 }]
             };
 
@@ -159,29 +307,20 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    return `Hata: ${err.error.message}`;
-                }
-
                 const data = await response.json();
                 return data.candidates[0].content.parts[0].text;
-
             } catch (error) {
-                return "Bağlantı hatası. İnternetinizi kontrol edin.";
+                return "Bağlantı hatası.";
             }
         }
 
-        // --- ARAYÜZ YARDIMCILARI ---
+        // --- YARDIMCILAR ---
         function addMessage(text, sender) {
             const div = document.createElement('div');
             div.classList.add('message', `${sender}-message`);
-            // Linkleri ve formatı düzenle
-            let formatted = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>')
+            div.innerHTML = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">Link</a>')
                                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                                 .replace(/\n/g, '<br>');
-            div.innerHTML = formatted;
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -205,7 +344,8 @@
             if (!text) return;
             addMessage(text, 'user');
             userInput.value = '';
-            quickActions.style.display = 'none';
+            // Butonları gizle (isteğe bağlı, kalsın istersen bu satırı sil)
+            // quickActions.style.display = 'none'; 
             showTyping();
             const response = await getBotResponse(text);
             hideTyping();
@@ -214,18 +354,14 @@
 
         async function handleAction(action, text) {
             addMessage(text, 'user');
-            quickActions.style.display = 'none';
             showTyping();
-            const response = await getBotResponse(action); // Butonun aksiyon metnini gönder
+            const response = await getBotResponse(action);
             hideTyping();
             addMessage(response, 'assistant');
         }
 
-        // Olay Dinleyicileri
         sendBtn.onclick = sendMessage;
         userInput.onkeydown = (e) => { if(e.key === 'Enter') sendMessage() };
-
-        // Sayfa yüklenince JSON'u çekmeye başla
         window.onload = loadData;
 
     </script>
