@@ -1,11 +1,34 @@
 {
-  "ad": "Murat Tekin",
-  "unvan": "Bilgisayar Mühendisi",
-  "fotograf": "murat.jpg",
-  "hazir_mesajlar": [
-    "Projelerin neler?",
-    "Hangi dilleri biliyorsun?",
-    "İletişim bilgilerin nedir?",
-    "CV'ni görebilir miyim?"
-  ]
+  "identity": {
+    "name": "Murat Tekin",
+    "title": "Bilgisayar Mühendisi",
+    "bio": "Merhaba, ben Murat. Dijital girişimciyim ve yazılım geliştiriyorum. Unity ve Web teknolojileri üzerine çalışıyorum."
+  },
+  "contact": {
+    "email": "murat@ornek.com",
+    "linkedin": "linkedin.com/in/murattekin"
+  },
+  "projects": [
+    {
+      "name": "GADIN BURDUR",
+      "desc": "Unity ile geliştirdiğim 2D RPG oyunu."
+    },
+    {
+      "name": "TE Studio",
+      "desc": "YouTube içerik üretim stüdyom."
+    },
+    {
+      "name": "Akıllı Kartvizit",
+      "desc": "Şu an incelediğiniz yapay zeka destekli web projesi."
+    }
+  ],
+  "skills": {
+    "tech": [
+      "C#",
+      "Unity",
+      "JavaScript",
+      "Video Kurgu",
+      "Pixel Art"
+    ]
+  }
 }
