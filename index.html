@@ -2,57 +2,54 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Murat Tekin | Akıllı Asistan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Asistan</title>
     
     <style>
-        /* --- YUMUŞAK VE MODERN TASARIM --- */
+        /* --- STABİL VE YUMUŞAK TASARIM (Mobile First) --- */
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f0f2f5; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f2f4f8; /* Yumuşak gri arka plan */
             margin: 0; 
             display: flex; 
             justify-content: center; 
             height: 100vh; 
+            overflow: hidden; /* Sayfa kaymasını engelle */
         }
 
         .chat-container { 
             width: 100%; 
-            max-width: 450px; 
+            max-width: 480px; /* Mobilde tam, pc'de dar */
             background: white; 
             display: flex; 
             flex-direction: column; 
             height: 100%; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Yumuşak gölge */
-            /* Bilgisayarda kenarlar yuvarlak görünsün, mobilde tam ekran */
-            @media (min-width: 480px) {
-                height: 90vh;
-                margin-top: 5vh;
-                border-radius: 30px; 
-                overflow: hidden;
-            }
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
         
-        /* Üst Başlık - Yuvarlak Hatlar */
+        /* Üst Başlık - Modern ve Oval */
         .chat-header { 
-            background: linear-gradient(135deg, #0061f2, #00c6f7); /* Modern Mavi Gradyan */
-            color: white; 
-            padding: 20px; 
+            background: #ffffff;
+            color: #333; 
+            padding: 15px 20px; 
             display: flex; 
             align-items: center; 
-            border-radius: 0 0 25px 25px; /* Alt köşeleri yuvarla */
-            box-shadow: 0 5px 15px rgba(0,100,250,0.2);
+            border-bottom: 1px solid #f0f0f0;
             z-index: 10;
         }
         .chat-header img { 
-            width: 55px; 
-            height: 55px; 
-            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; /* Tam yuvarlak */
             margin-right: 15px; 
-            border: 3px solid rgba(255,255,255,0.3); 
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .chat-header h1 { font-size: 20px; margin: 0; font-weight: 600; }
-        .chat-header p { font-size: 13px; margin: 0; opacity: 0.9; }
+        .chat-header h1 { font-size: 18px; margin: 0; font-weight: 700; color: #222; }
+        .chat-header p { font-size: 13px; margin: 0; color: #888; margin-top: 2px; }
 
         /* Mesaj Alanı */
         .chat-messages { 
@@ -61,107 +58,105 @@
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
-            gap: 15px; 
-            padding-bottom: 90px; 
-            background: #fff;
+            gap: 12px; 
+            padding-bottom: 100px; /* Input için boşluk */
+            background: #fafafa;
         }
         
-        /* Mesaj Balonları - Tam Yuvarlak */
+        /* Mesaj Balonları */
         .message { 
             padding: 12px 18px; 
-            border-radius: 20px; 
+            border-radius: 22px; 
             font-size: 15px; 
             line-height: 1.5; 
-            max-width: 80%; 
+            max-width: 85%; 
             word-wrap: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .assistant-message { 
-            background: #f1f3f5; 
-            color: #333; 
+            background: #ffffff; 
+            color: #444; 
             align-self: flex-start; 
-            border-bottom-left-radius: 5px; /* Konuşma balonu efekti */
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            border: 1px solid #eee;
         }
         .user-message { 
-            background: #0061f2; 
+            background: #007aff; /* iOS Mavisi */
             color: white; 
             align-self: flex-end; 
-            border-bottom-right-radius: 5px; /* Konuşma balonu efekti */
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,122,255,0.25);
         }
 
-        /* Hızlı Butonlar - Hap Şeklinde */
+        /* Hazır Butonlar */
         .quick-actions { 
-            padding: 10px 20px; 
+            padding: 0 20px;
             display: flex; 
             gap: 8px; 
             flex-wrap: wrap; 
             justify-content: center; 
+            margin-bottom: 10px;
         }
         .action-btn { 
-            background: #eef4ff; 
-            border: none; 
-            color: #0061f2; 
-            padding: 10px 18px; 
-            border-radius: 25px; /* Hap şekli */
+            background: #eff6ff; 
+            border: 1px solid #dbeafe; 
+            color: #1d4ed8; 
+            padding: 8px 16px; 
+            border-radius: 20px; 
             cursor: pointer; 
             font-size: 13px; 
             font-weight: 600; 
             transition: all 0.2s;
         }
-        .action-btn:hover { background: #dce9ff; transform: scale(1.05); }
+        .action-btn:active { background: #dbeafe; transform: scale(0.95); }
 
-        /* Giriş Kutusu - Havada Duran Tasarım */
+        /* Giriş Kutusu - SABİT VE ŞIK */
         .chat-input {
             padding: 15px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #f0f0f0;
             display: flex;
             align-items: center;
-            position: fixed; 
+            position: absolute; 
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%); /* Ortala */
+            left: 0;
             width: 100%;
-            max-width: 450px; 
-            box-sizing: border-box;
-            z-index: 9999;
-            border-top: 1px solid #f0f0f0;
+            z-index: 999;
         }
         
-        /* Yazı Yazma Alanı - Tam Oval */
         .chat-input input {
             flex: 1;
-            padding: 14px 20px;
+            padding: 12px 20px;
             border: 1px solid #e1e4e8;
-            border-radius: 30px; /* Tam oval */
-            outline: none;
-            background: #f8f9fa !important;
-            color: #333 !important;
-            font-size: 15px;
-            pointer-events: auto !important;
+            border-radius: 30px; 
+            background: #f8f9fa;
+            color: #333;
+            font-size: 16px; /* 16px altı iOS'ta zoom yapar, bunu engelledik */
             transition: border 0.3s;
         }
-        .chat-input input:focus { border-color: #0061f2; background: white !important; }
+        .chat-input input:focus { border-color: #007aff; background: white; }
         
-        /* Gönder Butonu */
         .chat-input button {
-            background: #0061f2; 
+            background: #007aff; 
             color: white; 
             border: none; 
-            width: 45px; 
-            height: 45px; 
+            width: 44px; 
+            height: 44px; 
             border-radius: 50%; 
             margin-left: 10px; 
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,97,242,0.3);
-            transition: transform 0.2s;
             display: flex; 
             align-items: center; 
             justify-content: center;
             font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
         }
-        .chat-input button:active { transform: scale(0.9); }
 
-        /* Yazıyor animasyonu */
+        /* Yükleniyor Animasyonu */
         .typing-indicator span { display: inline-block; width: 6px; height: 6px; background: #bbb; border-radius: 50%; margin: 0 2px; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.3; } }
     </style>
@@ -170,18 +165,19 @@
 
     <div class="chat-container">
         <div class="chat-header">
-            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan&background=0061f2&color=fff&size=150" alt="Profil">
+            <img id="avatar" src="https://ui-avatars.com/api/?name=Asistan&background=eee&color=333" alt="Profil">
             <div class="info">
                 <h1 id="header-name">Yükleniyor...</h1>
-                <p id="header-title">Dijital Asistan</p>
+                <p id="header-title">Lütfen bekleyin</p>
             </div>
         </div>
         
         <div class="chat-messages" id="chat-messages"></div>
+        
         <div class="quick-actions" id="quick-actions"></div>
         
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Bir mesaj yazın..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Mesaj yazın..." autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
     </div>
@@ -201,21 +197,24 @@
         const headerTitle = document.getElementById('header-title');
         const avatar = document.getElementById('avatar');
 
-        // --- 2. JSON VERİSİNİ ÇEK ---
+        // --- 2. JSON VERİSİNİ ÇEK (Cache Buster Eklendi) ---
         async function loadData() {
             const params = new URLSearchParams(window.location.search);
             const user = params.get('k') || 'murat'; 
 
             try {
-                // murat.json dosyasını çek
-                const response = await fetch(`${user}.json`);
+                // Sonuna ?v=... ekleyerek tarayıcıyı taze dosya çekmeye zorluyoruz
+                const response = await fetch(`${user}.json?v=${Date.now()}`);
+                
                 if (!response.ok) throw new Error("Dosya bulunamadı");
+                
                 profileData = await response.json();
                 initializeApp();
             } catch (error) {
                 console.error("Hata:", error);
-                headerName.innerText = "Hata!";
-                addMessage("Veri dosyası yüklenemedi. Lütfen 'murat.json' dosyasının yüklü olduğundan emin olun.", "assistant");
+                headerName.innerText = "Hata";
+                headerTitle.innerText = "Kullanıcı Bulunamadı";
+                addMessage(`⚠️ <strong>${user}.json</strong> dosyası bulunamadı. Lütfen GitHub'a bu isimde bir dosya yüklediğinizden emin olun.`, "assistant");
             }
         }
 
@@ -225,16 +224,16 @@
             headerTitle.innerText = profileData.identity.title;
             
             const safeName = profileData.identity.name.replace(" ", "+");
-            avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=0061f2&color=fff&size=150`;
+            avatar.src = `https://ui-avatars.com/api/?name=${safeName}&background=007aff&color=fff&size=150`;
 
             // Hoşgeldin Mesajı
             setTimeout(() => {
-                addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım. Size nasıl yardımcı olabilirim?`, 'assistant');
+                addMessage(`Merhaba! Ben <strong>${profileData.identity.name}</strong>'in dijital asistanıyım.`, 'assistant');
 
-                // HAZIR SORU BUTONLARI (Buraya eklendi)
+                // HAZIR SORU BUTONLARI
                 const btns = [
                     { text: "Kimdir?", action: `${profileData.identity.name} kimdir?` },
-                    { text: "Projeler", action: "Hangi projeleri yaptı?" },
+                    { text: "Projeleri", action: "Hangi projeleri yaptı?" },
                     { text: "Yetenekleri", action: "Yetenekleri neler?" },
                     { text: "İletişim", action: "İletişim bilgileri" }
                 ];
@@ -249,7 +248,6 @@
                 });
             }, 500);
 
-            // Modeli bul
             findWorkingModel();
         }
 
@@ -280,7 +278,7 @@
             return "gemini-pro";
         }
 
-        // --- 5. YAPAY ZEKA ---
+        // --- 5. YAPAY ZEKA CEVABI ---
         async function getBotResponse(userMessage) {
             if (!profileData) return "Veriler yüklenmedi.";
 
@@ -344,8 +342,6 @@
             if (!text) return;
             addMessage(text, 'user');
             userInput.value = '';
-            // Butonları gizle (isteğe bağlı, kalsın istersen bu satırı sil)
-            // quickActions.style.display = 'none'; 
             showTyping();
             const response = await getBotResponse(text);
             hideTyping();
